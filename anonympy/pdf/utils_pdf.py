@@ -17,7 +17,7 @@ def find_EOI(pipeline, matches: list, EOI: str) -> None:
 
 
 def draw_boxes_easyOCR(
-    image: Image.Image, bounds: list, color: str = "yellow", width: int = 2
+        image: Image.Image, bounds: list, color: str = "yellow", width: int = 2
 ):
     draw = ImageDraw.Draw(image)
     for bound in bounds:
@@ -27,10 +27,10 @@ def draw_boxes_easyOCR(
 
 
 def draw_boxes_pytesseract(
-    image: Image.Image,
-    data: Dict[str, int],
-    color: Tuple[int, int, int] = (0, 255, 0),
-    width: int = 2,
+        image: Image.Image,
+        data: Dict[str, int],
+        color: Tuple[int, int, int] = (0, 255, 0),
+        width: int = 2,
 ) -> None:
     boxes = len(data["level"])
     for i in range(boxes):
@@ -44,10 +44,10 @@ def draw_boxes_pytesseract(
 
 
 def draw_black_box_pytesseract(
-    bbox: List[Tuple[int, int, int, int]],
-    image: Image.Image,
-    fill: str = "black",
-    outline: str = "black",
+        bbox: List[Tuple[int, int, int, int]],
+        image: Image.Image,
+        fill: str = "black",
+        outline: str = "black",
 ) -> None:
     draw = ImageDraw.Draw(image)
     for box in bbox:
@@ -56,7 +56,7 @@ def draw_black_box_pytesseract(
 
 
 def draw_black_box_easyOCR(
-    bbox: List[Tuple[int, int, int, int]], image: Image.Image
+        bbox: List[Tuple[int, int, int, int]], image: Image.Image
 ) -> None:
     draw = ImageDraw.Draw(image)
     for box in bbox:
@@ -86,7 +86,7 @@ def find_coordinates_easyOCR(pii_objects: List[str],
     for obj in pii_objects:
         for i in range(len(bounds)):
             if (obj.strip() in bounds[i][1].strip()) and (
-                len(obj.strip()) > 3 and len(bounds[i][1].strip()) > 3
+                    len(obj.strip()) > 3 and len(bounds[i][1].strip()) > 3
             ):
                 bbox.append(bounds[i][0])
 
@@ -110,11 +110,16 @@ def find_months(text: str, matches: list) -> None:
     matches += match
 
 
+def find_name(text: str, matches: list) -> None:
+    match = re.findall(r"\b[А-ЯЁ][а-яё]+\s[А-ЯЁ][а-яё]+\s[А-ЯЁ][а-яё]+\b", text)
+    matches += match
+
+
 def alter_metadata(file_name: str, output_name: str):
     with open(file_name, "rb") as file_in, open(output_name, "wb") as file_out:
         pdf_merger = PdfMerger()
         pdf_merger.append(file_in)
-        pdf_merger.add_metadata({"/Author": "Unknown", "/Title": "Title", "/IP": 'ИП'})
+        pdf_merger.add_metadata({"/Author": "Unknown", "/Title": "Title", "/ИП": "ИП"})
         pdf_merger.write(file_out)
 
     os.remove(file_name)

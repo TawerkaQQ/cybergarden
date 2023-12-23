@@ -28,6 +28,9 @@ Pillow==9.0.1
 pypdf==3.4.1
 pytesseract==0.3.9
 transformers==4.17.0
+aspose-words==23.12.0
+pytest-shutil==1.7.0
+
 poppler-utils
 numpy
 pandas

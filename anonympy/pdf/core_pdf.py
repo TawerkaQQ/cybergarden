@@ -1,7 +1,8 @@
 import os
 import pathlib
 from typing import Dict, List, Tuple, Union
-
+import os
+from wand.image import Image
 import pytesseract
 import requests
 from PIL import Image
@@ -12,7 +13,7 @@ from transformers import BertTokenizer, BertForSequenceClassification
 from anonympy.pdf.utils_pdf import alter_metadata, \
      draw_black_box_pytesseract, find_EOI, \
      find_coordinates_pytesseract, find_emails, \
-     find_months, find_numbers
+     find_months, find_numbers, find_name
 
 
 class pdfAnonymizer(object):
@@ -77,7 +78,32 @@ class pdfAnonymizer(object):
                                model = "dslim/bert-base-NER",
                                tokenizer="dslim/bert-base-NER")
     """
-
+    # def convert_to_pdf(file_path, path_to_pdf=None):
+    #         # Проверяем, что входной файл является PNG или JPG
+    #         if file_path.endswith('.png') or file_path.endswith('.jpg'):
+    #             # Если аргумент path_to_pdf не равен None и не заканчивается на.pdf, то конвертируем файл в PDF
+    #             if path_to_pdf is not None and not path_to_pdf.endswith('.pdf'):
+    #                 # Проверяем, что путь к файлу существует
+    #                 if not os.path.exists(path_to_pdf):
+    #                     raise Exception(f"Can't find PDF file at `{path_to_pdf}`")
+    #                 # Проверяем, что путь к файлу заканчивается на.pdf
+    #                 elif not path_to_pdf.endswith('.pdf'):
+    #                     raise Exception("`String path should end with `.pdf`. "
+    #                                     f"But {path_to_pdf[-4:]} was found.")
+    #                 # Если путь к файлу существует и заканчивается на.pdf, то конвертируем его в PDF
+    #                 else:
+    #                     # Открываем файл с помощью библиотеки wand
+    #                     with Image(filename=file_path) as img:
+    #                         # Преобразуем изображение в формат PDF и сохраняем его в новый файл
+    #                         img.format = 'pdf'
+    #                         img.save(filename=path_to_pdf)
+    #             # Если аргумент path_to_pdf равен None или заканчивается на.pdf, то просто копируем файл
+    #             else:
+    #                 # Копируем файл
+    #                 shutil.copy(file_path, path_to_pdf)
+    #         # Если входной файл не является PNG или JPG, то вызываем исключение
+    #         else:
+    #             raise Exception("Input file should be PNG or JPG.")
     def __init__(self,
                  path_to_pdf: Union[str, None] = None,
                  url: Union[str, None] = None,
@@ -88,6 +114,7 @@ class pdfAnonymizer(object):
                               "finetuned-conll03-english",
                  tokenizer: str = "dbmdz/bert-large-cased"
                                   "-finetuned-conll03-english"):
+
 
         if path_to_pdf is not None:
             if not os.path.exists(path_to_pdf):
@@ -101,6 +128,7 @@ class pdfAnonymizer(object):
                             ' Please provide an input PDF file')
         elif (path_to_pdf is not None) and (url is not None):
             raise Exception('Please provide either `path_to_pdf` or `url`')
+
 
         # elif path_to_folder is not None:
         #     if not os.path.isdir(path_to_folder):
@@ -205,6 +233,7 @@ class pdfAnonymizer(object):
             find_emails(text=self.texts[0], matches=self.PII_objects)
             find_numbers(text=self.texts[0], matches=self.PII_objects)
             find_months(text=self.texts[0], matches=self.PII_objects)
+            find_name(text=self.texts[0], matches=self.PII_objects)
 
             find_EOI(pipeline=ner, matches=self.PII_objects, EOI="PER")
             find_EOI(pipeline=ner, matches=self.PII_objects, EOI="ORG")
@@ -229,6 +258,7 @@ class pdfAnonymizer(object):
                 find_emails(text=excerpt, matches=temp_pii)
                 find_numbers(text=excerpt, matches=temp_pii)
                 find_months(text=excerpt, matches=temp_pii)
+                find_name(text=excerpt, matches=temp_pii)
 
                 find_EOI(pipeline=ner, matches=temp_pii, EOI="PER")
                 find_EOI(pipeline=ner, matches=temp_pii, EOI="ORG")
@@ -266,6 +296,7 @@ class pdfAnonymizer(object):
                 img1.save(output_path,
                           save_all=True,
                           append_images=self.images)
+
 
     def pdf2images(self) -> None:
         """
