@@ -1,3 +1,3 @@
-cybergarden hack.
+Cybergarden hackathon.
 Кейс от банка Центр-Инвест - Обезличивание данных
 
